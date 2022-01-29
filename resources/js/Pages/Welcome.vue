@@ -3,7 +3,7 @@
 
     <div class="relative flex items-top justify-center min-h-screen  sm:items-center sm:pt-0">
         <div class="absolute top-2 left-2">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Noun_15537_ccElliotVerhaeren_travel.svg/1008px-Noun_15537_ccElliotVerhaeren_travel.svg.png" class='w-20' />
+            <img src="/img/logo.png" class='w-20' />
         </div>
         <div v-if="canLogin" class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
             <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="text-sm text-gray-700 underline">
@@ -30,13 +30,13 @@
   <div class="btn-group mr-2" role="group" aria-label="First group">
   <br />
                 <a href="/login"
-                class="bg-cyan-300 hover:bg-cyan-200 px-4 py-2 mt-4 rounded shadow hover:shadow-lg"
+                class="bg-indigo-400 hover:bg-cyan-300 px-4 py-2 mt-4 rounded shadow hover:shadow-lg"
                 >Sign In </a>
   </div>
   <div class="btn-group mr-2" role="group" aria-label="Second group">
      <br />
                 <a href="/register"
-                class="bg-cyan-300 hover:bg-cyan-200 px-4 py-2 mt-4 rounded shadow hover:shadow-lg"
+                class="bg-indigo-400 hover:bg-indigo-300 px-4 py-2 mt-4 rounded shadow hover:shadow-lg"
                 >Sign Up</a>
   </div>
   

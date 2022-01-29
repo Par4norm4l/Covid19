@@ -19922,10 +19922,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Layouts_Authenticated_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @/Layouts/Authenticated.vue */ "./resources/js/Layouts/Authenticated.vue");
 /* harmony import */ var _inertiajs_inertia_vue3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @inertiajs/inertia-vue3 */ "./node_modules/@inertiajs/inertia-vue3/dist/index.js");
 /* harmony import */ var vue3_select2_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue3-select2-component */ "./node_modules/vue3-select2-component/src/Select2.vue");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_3__);
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 
 
 
@@ -19939,83 +19936,71 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       visitedCountry: '',
-      toVisitCountry: '',
       visitedCountries: [],
-      toVisitCoutries: [],
+      VisitedCountriesinfo: {},
+      covidstatistics: {},
       map: null
     };
   },
   methods: {
-    selectVisitedCountry: function selectVisitedCountry(_ref) {// console.log({id, text})
-
+    selectVisitedCountry: function selectVisitedCountry(_ref) {
       var id = _ref.id,
           text = _ref.text;
-    },
-    selectToVisitCoountry: function selectToVisitCoountry(_ref2) {// console.log({id, text})
-
-      var id = _ref2.id,
-          text = _ref2.text;
+      console.log({
+        id: id,
+        text: text
+      });
     },
     addVisitedCountry: function addVisitedCountry() {
       var _this = this;
 
       if (this.visitedCountry !== "") {
-        axios__WEBPACK_IMPORTED_MODULE_3___default().post('/api/add-visited-country', {
+        axios.post("/api/add-visited-country", {
           countryID: this.visitedCountry
         }).then(function (response) {
           _this.getVisitedCountries();
 
-          _this.map.updateChoropleth(_defineProperty({}, response.data.country_code, '#ff0000'));
+          _this.map.updateChoropleth(_defineProperty({}, response.data.country_code, '#FF0000'));
         });
       } else {
-        console.log('Country is not selected from dropdown');
-      }
-    },
-    addToVisitCountry: function addToVisitCountry() {
-      var _this2 = this;
-
-      if (this.toVisitCountry !== "") {
-        axios__WEBPACK_IMPORTED_MODULE_3___default().post('/api/add-country-to-visit', {
-          countryID: this.toVisitCountry
-        }).then(function (response) {
-          _this2.getToVisitCountries();
-
-          console.log(response.data); //@todo set color on the map fro the country
-        });
-      } else {
-        console.log('Country is not selected from dropdown');
+        console.log("country is not selected from selector!");
       }
     },
     removeVisitedCountry: function removeVisitedCountry(countryID) {
-      var _this3 = this;
+      var _this2 = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default()["delete"]("/api/remove-visited-country/" + countryID)["catch"](function (error) {
+      axios["delete"]("/api/remove-visited-country/" + countryID)["catch"](function (error) {
         console.log(error);
-      }).then(function () {
-        _this3.getVisitedCountries();
-      });
-    },
-    removeToVisitCountry: function removeToVisitCountry(countryID) {
-      var _this4 = this;
+      }).then(function (response) {
+        _this2.getVisitedCountries();
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default()["delete"]("/api/remove-to-visit-country/" + countryID)["catch"](function (error) {
-        console.log(error);
-      }).then(function () {
-        _this4.getToVisitCountries();
+        _this2.map.updateChoropleth(_defineProperty({}, response.data.country_code, '#ABDDA4'));
       });
     },
     getVisitedCountries: function getVisitedCountries() {
-      var _this5 = this;
+      var _this3 = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default().get('/api/countries/visited').then(function (response) {
-        _this5.visitedCountries = response.data;
+      axios.get("/api/countries/visited").then(function (response) {
+        _this3.visitedCountries = response.data;
       });
     },
-    getToVisitCountries: function getToVisitCountries() {
-      var _this6 = this;
+    GetCovidCases: function GetCovidCases(countryID) {
+      var _this4 = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default().get('/api/countries/tovisit').then(function (response) {
-        _this6.toVisitCoutries = response.data;
+      var url = "https://disease.sh/v3/covid-19/countries/georgia";
+      axios.get(url).then(function (response) {
+        return _this4.VisitedCountriesinfo[countryID] = response.data;
+      })["catch"](function (error) {
+        return console.log(error);
+      });
+    },
+    GetCountriesStatistics: function GetCountriesStatistics() {
+      var _this5 = this;
+
+      axios.get("https://disease.sh/v3/covid-19/all").then(function (response) {
+        return _this5.covidstatistics = response.data;
+      })["catch"](function (error) {
+        return console.log(error);
       });
     },
     initMap: function initMap() {
@@ -20030,11 +20015,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   },
   created: function created() {
-    var _this7 = this;
+    var _this6 = this;
 
+    this.GetCovidCases();
+    this.GetCountriesStatistics();
     this.getVisitedCountries();
     setTimeout(function () {
-      _this7.initMap();
+      _this6.initMap();
     }, 500);
   }
 });
@@ -20083,7 +20070,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
 var _hoisted_1 = {
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Noun_15537_ccElliotVerhaeren_travel.svg/1008px-Noun_15537_ccElliotVerhaeren_travel.svg.png",
+  src: "/img/logo.png",
   "class": "w-8"
 };
 function render(_ctx, _cache) {
@@ -20437,7 +20424,7 @@ var _hoisted_7 = {
   "class": "hidden space-x-8 sm:-my-px sm:ml-10 sm:flex"
 };
 
-var _hoisted_8 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Dashboard ");
+var _hoisted_8 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Covid-19 Problems ");
 
 var _hoisted_9 = {
   "class": "hidden sm:flex sm:items-center sm:ml-6"
@@ -20975,7 +20962,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   }, 8
   /* PROPS */
   , ["href"])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_BreezeButton, {
-    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["ml-4 bg-cyan-300", {
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["ml-4 bg-indigo-400", {
       'opacity-25': $data.form.processing
     }]),
     disabled: $data.form.processing
@@ -21122,7 +21109,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   }, 8
   /* PROPS */
   , ["href"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_BreezeButton, {
-    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["ml-4 bg-cyan-300", {
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["ml-4 bg-indigo-400", {
       'opacity-25': $data.form.processing
     }]),
     disabled: $data.form.processing
@@ -21352,30 +21339,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 
-
-var _hoisted_1 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h2", {
-  "class": "font-semibold text-xl text-gray-800 leading-tight"
-}, " Home ", -1
-/* HOISTED */
-);
-
-var _hoisted_2 = {
+var _hoisted_1 = {
   "class": "py-12"
 };
-var _hoisted_3 = {
+var _hoisted_2 = {
   "class": "max-w-7xl mx-auto sm:px-6 lg:px-8"
 };
-var _hoisted_4 = {
+var _hoisted_3 = {
   "class": "bg-white overflow-hidden shadow-sm sm:rounded-lg"
 };
-var _hoisted_5 = {
-  "class": "p-6 bg-white border-b border-gray-200"
+var _hoisted_4 = {
+  "class": "p-4 bg-white border-b pb-8 border-gray-200"
 };
-var _hoisted_6 = {
+var _hoisted_5 = {
   "class": "flex"
 };
 
-var _hoisted_7 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+var _hoisted_6 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   "class": "w-1/2"
 }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
   id: "map",
@@ -21384,52 +21364,103 @@ var _hoisted_7 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementV
 /* HOISTED */
 );
 
-var _hoisted_8 = {
+var _hoisted_7 = {
+  "class": "block bg-white shadow rounded ml-20 pb-8 relative p-3"
+};
+
+var _hoisted_8 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  "class": "flex items-center justify-around"
+}, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+  src: "data:image/png;base64,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",
+  "class": "w-10"
+}), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h1", {
+  "class": "text-3xl"
+}, " World Statistics ")], -1
+/* HOISTED */
+);
+
+var _hoisted_9 = {
+  "class": "shadow rounded ml-10 p-6 flex text-center gap-2"
+};
+var _hoisted_10 = {
+  "class": "p-1 shadow bg-white0 rounded"
+};
+
+var _hoisted_11 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h1", {
+  "class": "w-1/2 p-1 text-indigo-400 text-sm"
+}, " TodaysCases ", -1
+/* HOISTED */
+);
+
+var _hoisted_12 = {
+  "class": "text-indigo-400"
+};
+var _hoisted_13 = {
+  "class": "w-1/2 p-1 shadow bg-white rounded"
+};
+
+var _hoisted_14 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h1", {
+  "class": "text-indigo-400 text-sm"
+}, " TodaysDeaths ", -1
+/* HOISTED */
+);
+
+var _hoisted_15 = {
+  "class": "text-indigo-400"
+};
+var _hoisted_16 = {
+  "class": "w-1/2 p-1 shadow bg-white rounded"
+};
+
+var _hoisted_17 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h1", {
+  "class": "text-indigo-400 text-sm"
+}, " TodaysRecovered ", -1
+/* HOISTED */
+);
+
+var _hoisted_18 = {
+  "class": "text-indigo-400"
+};
+var _hoisted_19 = {
   "class": "w-1/2 relative"
 };
-var _hoisted_9 = {
-  "class": "block bg-white shadow shadow rounded relative p-3"
+var _hoisted_20 = {
+  "class": "block bg-white shadow rounded relative mt-5 ml-20 p-3"
 };
 
-var _hoisted_10 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h3", null, "Visited Countries", -1
+var _hoisted_21 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h3", null, "Add Your Country", -1
 /* HOISTED */
 );
 
-var _hoisted_11 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1
+var _hoisted_22 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1
 /* HOISTED */
 );
 
-var _hoisted_12 = ["onClick"];
+var _hoisted_23 = {
+  "class": "text-violet-900 text-xl text-center"
+};
+var _hoisted_24 = {
+  "class": "text-violet-700"
+};
+var _hoisted_25 = {
+  "class": "text-violet-700"
+};
+var _hoisted_26 = {
+  "class": "text-violet-700"
+};
+var _hoisted_27 = ["onClick"];
 
-var _hoisted_13 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
-  src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAACSklEQVRYhdWXTU8TURSGnzMfnX4gRQg1qWkCJmWhJGhCgn9B08REFia6RMOKv+DCn+CSNewNIn/Bj1UXykJjWACJtqgwFNrptHNdDC0kQDud1lHf3U3OnPeZue/cMwN/WXJ28UUpK+64i4g8RjENpAbkc4TwEaVWa5a5nBdxzgFsH6vraI03wMyATC9TEc8o5JKy2wbw77zxPgLzNkTNMu7mRRwNIO64ixGaA9yOO+4zAA0AJU8iNPclvqcPINyMHMAP+QkADEUOcOJphLnSbjZ5/rXEp6MaANOpOC9uZLhi6D330rqXnNd6+ZBRU2djZoKNmQlGTJ3Xe5UwrYI9gbLbYKtaZ6taRwEf7Cp1z+Plzh4A3x2XX24TTRQCTCZiTCZijJvd2wvAds1VnYo2flRYKx/w+bgehJepZIwH42nujXWOVi5uSqAtuD82xEJ2NJA5wEJ2tKt5S6Ey0NJsOsFsOtFPi3BvQdrUcT2PO6k4AJuVGqamceA2owF4dC1NtXkam/nMCAldWN752XOvUFugA7qcAuii6P0E6ANgkPo/AQ4bHvsNr73eb3gcnln3olAhXPm2D8DT7FUAXpXsUOahAVpaK1foeIQOEiB9waQrue6FtSM9TMXAGZhKxniYGcbS5NIaSxPmM8Pkk7HAAIGG0Z/S2WEUbpj3JxvaH6VsRm4vvufJR6laiRxAqdU2QM0yl4FihPZF2/f0AfIiDp5RiAiiiGcUbonU2wAAuaTs2pYxB2oJ4R2DDWYF4S2oJdsy5lr/hf+EfgOVMK4PgBOVqwAAAABJRU5ErkJggg=="
+var _hoisted_28 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
+  src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAACdUlEQVR4nO2aPWsUURSGnzuTrCa7ssY6acQEhHQWxkbX0lp3/drGRpBU4n/QQoygBksDiRiyrZUgxsYEBP9A1MagBBuNH5FJZo9FNmo0s5nMzniUOU8zA/fec5954R524YJhGIZhGHnFZVn83OjTox5yCxgG/JhG75xwe3K8ci1Lt5/bZUT18rN9u4LgFbA3WQV3emr82EyqUlvQlVXhwmpwmNbHC8w5WIy5tLq+Rk4A/28AHpRk491xc/JOpRFnXX10VgAcFLNy+xXvb2zyL5O4B5y/9GTEee5Km8r9CCOt93kk9hE41XouAvNt5s1NjVfGYtaMJPER8Hw3IPJD9k9k0/tIgi36oU39lMj9Ech9ADvuAfXR2RkA33cHw1CG01eKh++5j2FTHgFIU8bu3z3erl9EkqQHVAHCULablylhU8obLp7vGrRvmJHk/ghYANoC2iTpAQ2A3p6u/lKx+8hWE1a+rbHW6hF7it2pjwMEQbj4YTmYA2iG8mbnn7FO4l+C96YXqiBb/ll5u/SVz19WARjaX059vEXjwpmhWgL1TeT+CFgA2gLaWADaAtpYANoC2lgA2gLaWADaAtpYANoC2lgA2gLaWADaAtpYANoC2lgA2gLaWADaAtpYANoC2uQ+gMR3hJyTpkRcEejZ3b5sp+MAIlG774xO7gm+jxroKxfoKxciF3Y6DuCcW4rhuC2Jj0Cv63kOfEpDIgmCe5xGncQB1GoDKwjX05BIwIuSd+BhGoU6aoJFf/CqEx6kIRIXBy+R8GSt5sKU6nWGiLiJ6YWzwEXnOCRQSsHrdwLgtSAzhTXvRr0+uJzBHoZhGIZh5Izvx2mmbR11DwwAAAAASUVORK5CYII=",
+  "class": "w-8"
 }, null, -1
 /* HOISTED */
 );
 
-var _hoisted_14 = [_hoisted_13];
-var _hoisted_15 = {
-  "class": "block bg-white shadow shadow rounded relative p-3 mt-6"
-};
-
-var _hoisted_16 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h3", null, "Countries To Visit", -1
-/* HOISTED */
-);
-
-var _hoisted_17 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br", null, null, -1
-/* HOISTED */
-);
-
-var _hoisted_18 = ["onClick"];
-
-var _hoisted_19 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
-  src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAACSklEQVRYhdWXTU8TURSGnzMfnX4gRQg1qWkCJmWhJGhCgn9B08REFia6RMOKv+DCn+CSNewNIn/Bj1UXykJjWACJtqgwFNrptHNdDC0kQDud1lHf3U3OnPeZue/cMwN/WXJ28UUpK+64i4g8RjENpAbkc4TwEaVWa5a5nBdxzgFsH6vraI03wMyATC9TEc8o5JKy2wbw77zxPgLzNkTNMu7mRRwNIO64ixGaA9yOO+4zAA0AJU8iNPclvqcPINyMHMAP+QkADEUOcOJphLnSbjZ5/rXEp6MaANOpOC9uZLhi6D330rqXnNd6+ZBRU2djZoKNmQlGTJ3Xe5UwrYI9gbLbYKtaZ6taRwEf7Cp1z+Plzh4A3x2XX24TTRQCTCZiTCZijJvd2wvAds1VnYo2flRYKx/w+bgehJepZIwH42nujXWOVi5uSqAtuD82xEJ2NJA5wEJ2tKt5S6Ey0NJsOsFsOtFPi3BvQdrUcT2PO6k4AJuVGqamceA2owF4dC1NtXkam/nMCAldWN752XOvUFugA7qcAuii6P0E6ANgkPo/AQ4bHvsNr73eb3gcnln3olAhXPm2D8DT7FUAXpXsUOahAVpaK1foeIQOEiB9waQrue6FtSM9TMXAGZhKxniYGcbS5NIaSxPmM8Pkk7HAAIGG0Z/S2WEUbpj3JxvaH6VsRm4vvufJR6laiRxAqdU2QM0yl4FihPZF2/f0AfIiDp5RiAiiiGcUbonU2wAAuaTs2pYxB2oJ4R2DDWYF4S2oJdsy5lr/hf+EfgOVMK4PgBOVqwAAAABJRU5ErkJggg=="
-}, null, -1
-/* HOISTED */
-);
-
-var _hoisted_20 = [_hoisted_19];
+var _hoisted_29 = [_hoisted_28];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
+  var _this = this;
+
   var _component_Head = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Head");
 
   var _component_Select2 = (0,vue__WEBPACK_IMPORTED_MODULE_0__.resolveComponent)("Select2");
@@ -21439,11 +21470,14 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Head, {
     title: "Dashboard"
   }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_BreezeAuthenticatedLayout, null, {
-    header: (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [_hoisted_1];
-    }),
     "default": (0,vue__WEBPACK_IMPORTED_MODULE_0__.withCtx)(function () {
-      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [_hoisted_7, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_8, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, [_hoisted_10, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
+      return [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [_hoisted_6, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [_hoisted_8, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_9, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_10, [_hoisted_11, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h1", _hoisted_12, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.covidstatistics.todayCases), 1
+      /* TEXT */
+      )]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_13, [_hoisted_14, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h1", _hoisted_15, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.covidstatistics.todayDeaths), 1
+      /* TEXT */
+      )]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_16, [_hoisted_17, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h1", _hoisted_18, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.covidstatistics.todayRecovered), 1
+      /* TEXT */
+      )])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_19, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_20, [_hoisted_21, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
         modelValue: $data.visitedCountry,
         "onUpdate:modelValue": _cache[0] || (_cache[0] = function ($event) {
           return $data.visitedCountry = $event;
@@ -21464,12 +21498,18 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         onClick: _cache[2] || (_cache[2] = function () {
           return $options.addVisitedCountry && $options.addVisitedCountry.apply($options, arguments);
         }),
-        "class": "rounded bg-cyan-300 hover:bg-cyan-200 px-4 py-1 shadow pointer absolute right-3 top-8"
-      }, "Add"), _hoisted_11, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($data.visitedCountries, function (country) {
+        "class": "rounded bg-indigo-300 hover:bg-indigo-400 px-4 py-1 shadow pointer absolute right-3 top-8"
+      }, "Add"), _hoisted_22, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($data.visitedCountries, function (country) {
         return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
           key: country.id,
           "class": "p-2 border-b-2 relative"
-        }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)((0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(country.name) + " ", 1
+        }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_23, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(country.name), 1
+        /* TEXT */
+        ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_24, " TodaysCases = " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.VisitedCountriesinfo[country.country_code]['todayCases']), 1
+        /* TEXT */
+        ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_25, " TodaysDeath = " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.VisitedCountriesinfo[country.country_code]["todayDeaths"]), 1
+        /* TEXT */
+        ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_26, " TodaysRecovered = " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(_this.VisitedCountriesinfo[country.country_code]["todayRecovered"]), 1
         /* TEXT */
         ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
           href: "javascript:void(0)",
@@ -21477,51 +21517,12 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             return $options.removeVisitedCountry(country.id);
           },
           "class": "absolute right-1 top-2"
-        }, _hoisted_14, 8
+        }, _hoisted_29, 8
         /* PROPS */
-        , _hoisted_12)]);
+        , _hoisted_27)]);
       }), 128
       /* KEYED_FRAGMENT */
-      ))]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_15, [_hoisted_16, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createVNode)(_component_Select2, {
-        modelValue: $data.toVisitCountry,
-        "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {
-          return $data.toVisitCountry = $event;
-        }),
-        settings: {
-          width: '80%',
-          ajax: {
-            url: '/api/countries/list',
-            dataType: 'json'
-          }
-        },
-        onSelect: _cache[4] || (_cache[4] = function ($event) {
-          return _ctx.selectToVisitCountry($event);
-        })
-      }, null, 8
-      /* PROPS */
-      , ["modelValue"]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
-        onClick: _cache[5] || (_cache[5] = function () {
-          return $options.addToVisitCountry && $options.addToVisitCountry.apply($options, arguments);
-        }),
-        "class": "rounded bg-cyan-300 hover:bg-cyan-200 px-4 py-1 shadow pointer absolute right-3 top-8"
-      }, "Add"), _hoisted_17, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)(_ctx.toVisitCountries, function (country) {
-        return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
-          key: country.id,
-          "class": "p-2 border-b-2 relative"
-        }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)((0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(country.name) + " ", 1
-        /* TEXT */
-        ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
-          href: "javascript:void(0)",
-          onClick: function onClick($event) {
-            return $options.removeToVisitCountry(country.id);
-          },
-          "class": "absolute right-1 top-2"
-        }, _hoisted_20, 8
-        /* PROPS */
-        , _hoisted_18)]);
-      }), 128
-      /* KEYED_FRAGMENT */
-      ))])])])])])])])];
+      ))])])])])])])];
     }),
     _: 1
     /* STABLE */
@@ -21559,7 +21560,7 @@ var _hoisted_2 = /*#__PURE__*/_withScopeId(function () {
   return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "absolute top-2 left-2"
   }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
-    src: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Noun_15537_ccElliotVerhaeren_travel.svg/1008px-Noun_15537_ccElliotVerhaeren_travel.svg.png",
+    src: "/img/logo.png",
     "class": "w-20"
   })], -1
   /* HOISTED */
@@ -21588,14 +21589,14 @@ var _hoisted_5 = /*#__PURE__*/_withScopeId(function () {
     "aria-label": "First group"
   }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
     href: "/login",
-    "class": "bg-cyan-300 hover:bg-cyan-200 px-4 py-2 mt-4 rounded shadow hover:shadow-lg"
+    "class": "bg-indigo-400 hover:bg-cyan-300 px-4 py-2 mt-4 rounded shadow hover:shadow-lg"
   }, "Sign In ")]), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "btn-group mr-2",
     role: "group",
     "aria-label": "Second group"
   }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("br"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
     href: "/register",
-    "class": "bg-cyan-300 hover:bg-cyan-200 px-4 py-2 mt-4 rounded shadow hover:shadow-lg"
+    "class": "bg-indigo-400 hover:bg-indigo-300 px-4 py-2 mt-4 rounded shadow hover:shadow-lg"
   }, "Sign Up")])])]), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("img", {
     src: "/img/intro.png"
   })])], -1

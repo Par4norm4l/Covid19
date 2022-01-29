@@ -46,8 +46,5 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Models\Country', 'visited_countries', 'user_id', 'country_id');
     }
-    public function countries_to_visit()
-    {
-        return $this->belongsToMany('App\Models\Country', 'countries_to_visit', 'user_id', 'country_id');
-    }
+
 }

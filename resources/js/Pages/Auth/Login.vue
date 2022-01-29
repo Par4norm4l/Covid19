@@ -30,7 +30,7 @@
                 Forgot your password?
             </Link>
 
-            <BreezeButton class="ml-4 bg-cyan-300" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+            <BreezeButton class="ml-4 bg-indigo-400" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                 Log in
             </BreezeButton>
         </div>
